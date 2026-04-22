@@ -41,27 +41,40 @@ APP/
 - Paquetes usados por la app (se cargan en `global.R`), incluyendo `shiny`, `bs4Dash`, `tidyverse`, `gt`, `plotly`, entre otros.
 - Dependencias internas de la organización: familia de paquetes `racafe*`.
 
-## Clonar para desarrollo local
+## Descarga selectiva de la subcarpeta `APP`
 
-1. Clona el repositorio:
-
-```bash
-git clone https://github.com/<organizacion>/PlantillaBs4Dash.git
-```
-
-2. Entra a la carpeta del proyecto:
-
-```bash
-cd PlantillaBs4Dash
-```
-
-3. Abre una sesión de R en la raíz del repositorio y ejecuta la app:
+Si solo necesitas la app y no todo el repositorio, puedes usar **sparse checkout** desde R para descargar únicamente `APP`:
 
 ```r
-shiny::runApp("APP")
-```
+# Descarga selectiva de subcarpeta desde GitHub via sparse checkout
+repo_url  <- "https://github.com/HCamiloYateT/PlantillaBs4Dash"
+subcarpeta <- "APP"
+destino    <- file.path(getwd(), subcarpeta)
 
-> Si trabajas desde RStudio, abre el proyecto/carpeta en la raíz y luego ejecuta `shiny::runApp("APP")`.
+# Clonar solo la subcarpeta usando sparse checkout (sin historial completo)
+tmp <- tempfile()
+system2("git", c(
+  "clone",
+  "--depth=1",
+  "--filter=blob:none",
+  "--sparse",
+  repo_url,
+  tmp
+))
+system2("git", c("-C", tmp, "sparse-checkout", "set", subcarpeta))
+
+# Copiar la carpeta APP al directorio del proyecto
+file.copy(
+  from      = file.path(tmp, subcarpeta),
+  to        = getwd(),
+  recursive = TRUE,
+  overwrite = TRUE
+)
+
+# Limpiar temporal
+unlink(tmp, recursive = TRUE)
+message("Listo: carpeta APP disponible en ", destino)
+```
 
 ## Variables que debes definir en `APP/global.R`
 
