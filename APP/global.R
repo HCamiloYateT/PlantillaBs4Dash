@@ -66,10 +66,15 @@ options(
 )
 
 # Librerias ----
-racafeCore::Loadpkg(c("racafeCore", "racafeBD", "racafeDrive", "racafeGraph", "racafeShiny",
-                  "racafeForecast", "racafeModulos", "shiny", "bs4Dash", "shinyBS", "shinyjs",
-                  "shinyWidgets", "tidyverse", "gt",  "scales", "plotly",  "rlang",
-                  "waiter", "glue", "lubridate", "stringr", "purrr"))
+library("racafeCore")
+library("racafeBD")
+library("racafeDrive")
+library("racafeGraph")
+library("racafeShiny")
+library("racafeForecast")
+racafeCore::Loadpkg(c("shiny", "bs4Dash", "shinyBS", "shinyjs",
+                      "shinyWidgets", "tidyverse", "gt",  "scales", "plotly",  "rlang",
+                      "waiter", "glue", "lubridate", "stringr", "purrr"))
 
 # Impresiones ----
 tit_app <- "Título de la APP"
