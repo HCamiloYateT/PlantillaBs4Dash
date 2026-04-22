@@ -208,7 +208,3 @@ load_modules <- function(path = "misc", verbose = FALSE, progress = TRUE) {
 
 # Ejecutar carga heredando flag verbose del entorno global
 load_modules(verbose = verbose)
-
-
-racafeBD::ConsultaSistema
-remotes::install_github("HCamiloYateT/Libreria-Racafe/racafeBD")
