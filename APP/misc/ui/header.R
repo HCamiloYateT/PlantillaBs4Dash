@@ -8,7 +8,8 @@ header <- bs4DashNavbar(status = "white", border = FALSE, sidebarIcon = icon("ba
                                   style = "display:flex;align-items:center; gap:8px;padding:8px 12px;cursor:default;",
                                   tags$span(uiOutput("user")),
                                   racafeShiny::Boton("BTN_Actualizar", label = NULL, icono = "sync",
-                                                     size = "xxs", label_posicion = "below", titulo = "Actualizar")
+                                                     size = "xxs", label_posicion = "below",
+                                                     titulo = "Actualizar")
                                   )
                           ),
                         rightUi = tagList(
