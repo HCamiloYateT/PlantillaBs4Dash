@@ -30,5 +30,6 @@ footer <- bs4DashFooter(
   right = tags$img(
     src = "https://raw.githubusercontent.com/HCamiloYateT/Compartido/main/img/logo.png",
     style = "height:30px;"
-  )
+  ),
+  fixed = TRUE
 )
