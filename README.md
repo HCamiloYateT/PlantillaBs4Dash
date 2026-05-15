@@ -102,3 +102,47 @@ shiny::runApp("APP")
 ## Estado
 
 Repositorio en estado de **plantilla/prototipo**, con componentes base para extender módulos, fuentes de datos y visualizaciones.
+
+## Instrucciones para subir un proyecto a GitHub
+
+El siguiente script de R inicializa Git en la raíz del proyecto, configura el remoto `origin`, descarga un `.gitignore` compartido, crea el primer commit y publica la rama `main` en GitHub.
+
+> Antes de ejecutarlo, ajusta `repo_github` con la URL SSH del repositorio destino y confirma que tu llave SSH (`~/.ssh/id_ed25519`) tenga acceso al repositorio.
+
+```r
+ruta_proyecto <- here::here()
+repo_github   <- "git@github.com:HCamiloYateT/OCR.git"
+gitignore_url <- "https://raw.githubusercontent.com/HCamiloYateT/Compartido/refs/heads/main/git/.gitignore"
+
+setwd(ruta_proyecto)
+
+top_git <- tryCatch(system2("git", c("rev-parse","--show-toplevel"), stdout = TRUE, stderr = FALSE), error = function(e) NULL)
+
+if(!is.null(top_git) && normalizePath(top_git) != normalizePath(getwd())){
+  unlink(file.path(top_git, ".git"), recursive = TRUE, force = TRUE)
+  message("Git incorrecto eliminado de: ", top_git)
+}
+
+system2("git", "init")
+
+Sys.chmod("~/.ssh", "700")
+if(file.exists("~/.ssh/id_ed25519")) Sys.chmod("~/.ssh/id_ed25519", "600")
+
+remotos <- tryCatch(system2("git", "remote", stdout = TRUE), error = function(e) character(0))
+
+if("origin" %in% remotos){
+  system2("git", c("remote","set-url","origin", repo_github))
+} else {
+  system2("git", c("remote","add","origin", repo_github))
+}
+
+download.file(gitignore_url, ".gitignore", quiet = TRUE)
+
+system2("git", "status")
+system2("git", c("add","."))
+system2("git", c("commit","-m","Primer commit"))
+system2("git", c("branch","-M","main"))
+system2("git", c("push","-u","origin","main"))
+
+message("Proyecto sincronizado con GitHub")
+```
