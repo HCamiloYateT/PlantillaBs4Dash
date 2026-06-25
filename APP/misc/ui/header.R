@@ -21,7 +21,7 @@ header <- bs4DashNavbar(status = "white", border = FALSE, sidebarIcon = icon("ba
                                                    icon("circle", style = "color:green;font-size:0.64rem;"),
                                                    " Datos simulados"),
                                          tags$span(style = "font-size:0.79rem;color:#999;",
-                                                   icon("calendar-alt"), format(Sys.Date(), " %d %b %Y")
+                                                   icon("calendar-alt"), paste0(" ", format_fecha_es(Sys.Date()))
                                                    )
                                          )
                                   )
