@@ -15,18 +15,37 @@ Sys.setenv(LANG = "es_CO.UTF-8")
 # LC_MONETARY: simbolo COP disponible en format(style = "currency")
 # LC_MESSAGES: warnings del SO en espanol
 locales_es <- c("es_CO.UTF-8", "es_ES.UTF-8", "Spanish_Spain.1252", "es_ES", "Spanish")
-for (.cat in c("LC_TIME", "LC_MONETARY", "LC_MESSAGES")) {
-  .actual <- tryCatch(Sys.getlocale(.cat), error = function(e) "C")
-  if (identical(.actual, "C") || !nzchar(.actual)) {
-    for (.loc in locales_es) {
-      .res <- suppressWarnings(
-        tryCatch(Sys.setlocale(.cat, .loc), error = function(e) "C")
-      )
-      if (!identical(.res, "C") && nzchar(.res)) break
+.set_spanish_locale <- function(cat) {
+  actual <- suppressWarnings(tryCatch(Sys.getlocale(cat), error = function(e) "C"))
+
+  if (grepl("^(es|spanish)", actual, ignore.case = TRUE)) {
+    return(invisible(actual))
+  }
+
+  for (loc in locales_es) {
+    res <- suppressWarnings(tryCatch(Sys.setlocale(cat, loc), error = function(e) "C"))
+    if (!identical(res, "C") && nzchar(res) && grepl("^(es|spanish)", res, ignore.case = TRUE)) {
+      return(invisible(res))
     }
   }
+
+  invisible(actual)
 }
-rm(.cat, .actual, .loc, .res)
+invisible(lapply(c("LC_TIME", "LC_MONETARY", "LC_MESSAGES"), .set_spanish_locale))
+
+# Fallback independiente del locale del servidor publicado para fechas visibles en UI
+meses_es <- c(
+  "enero", "febrero", "marzo", "abril", "mayo", "junio",
+  "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+)
+meses_abrev_es <- c("ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic")
+format_fecha_es <- function(fecha = Sys.Date(), abreviado = TRUE) {
+  fecha <- as.Date(fecha)
+  meses <- if (abreviado) meses_abrev_es else meses_es
+  sprintf("%02d %s %d", as.integer(format(fecha, "%d")), meses[as.integer(format(fecha, "%m"))],
+          as.integer(format(fecha, "%Y")))
+}
+rm(.set_spanish_locale)
 
 # Verificacion de locales activos al arranque
 if (verbose) {
@@ -77,9 +96,9 @@ racafeCore::Loadpkg(c("shiny", "bs4Dash", "shinyBS", "shinyjs",
                       "waiter", "glue", "lubridate", "stringr", "purrr"))
 
 # Impresiones ----
-tit_app <- "Título de la APP"
+tit_app <- "Análisis de Ofertas"
 # valores: prototipo, pruebas, staging, produccion, demo, mantenimiento, ninguno
-badge_estado <- "prototipo"
+badge_estado <- "staging"
 
 # Datos ----
 # Carga datos precargados desde RData
