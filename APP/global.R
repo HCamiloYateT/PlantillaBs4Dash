@@ -115,7 +115,7 @@ library("racafeGraph")
 library("racafeShiny")
 library("racafeForecast")
 racafeCore::Loadpkg(c("shiny", "bs4Dash", "shinyBS", "shinyjs",
-                      "shinyWidgets", "tidyverse", "gt",  "scales", "plotly",  "rlang",
+                      "shinyWidgets", "tidyverse", "scales", "rlang",
                       "waiter", "glue", "lubridate", "stringr", "purrr"))
 
 # Impresiones ----
