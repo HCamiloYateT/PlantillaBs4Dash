@@ -10,11 +10,17 @@ Sys.setenv(TZ = "America/Bogota")
 
 # LANG: mensajes de error de librerias C en Linux; ignorado en Windows
 Sys.setenv(LANG = "es_CO.UTF-8")
+# LANGUAGE: preferencia de idioma para mensajes gettext cuando esta disponible
+Sys.setenv(LANGUAGE = "es")
 
 # LC_TIME: nombres de meses/dias en espanol para strftime y lubridate
 # LC_MONETARY: simbolo COP disponible en format(style = "currency")
 # LC_MESSAGES: warnings del SO en espanol
-locales_es <- c("es_CO.UTF-8", "es_ES.UTF-8", "Spanish_Spain.1252", "es_ES", "Spanish")
+locales_es <- c(
+  "es_CO.UTF-8", "es_CO.utf8", "es_CO",
+  "es_ES.UTF-8", "es_ES.utf8", "es_ES",
+  "Spanish_Colombia.1252", "Spanish_Spain.1252", "Spanish"
+)
 .set_spanish_locale <- function(cat) {
   actual <- suppressWarnings(tryCatch(Sys.getlocale(cat), error = function(e) "C"))
 
@@ -31,7 +37,10 @@ locales_es <- c("es_CO.UTF-8", "es_ES.UTF-8", "Spanish_Spain.1252", "es_ES", "Sp
 
   invisible(actual)
 }
-invisible(lapply(c("LC_TIME", "LC_MONETARY", "LC_MESSAGES"), .set_spanish_locale))
+locales_activos <- setNames(
+  lapply(c("LC_TIME", "LC_MONETARY", "LC_MESSAGES"), .set_spanish_locale),
+  c("LC_TIME", "LC_MONETARY", "LC_MESSAGES")
+)
 
 # Fallback independiente del locale del servidor publicado para fechas visibles en UI
 meses_es <- c(
@@ -44,6 +53,20 @@ format_fecha_es <- function(fecha = Sys.Date(), abreviado = TRUE) {
   meses <- if (abreviado) meses_abrev_es else meses_es
   sprintf("%02d %s %d", as.integer(format(fecha, "%d")), meses[as.integer(format(fecha, "%m"))],
           as.integer(format(fecha, "%Y")))
+}
+locale_time_es_activo <- grepl("^(es|spanish)", Sys.getlocale("LC_TIME"), ignore.case = TRUE)
+if (!locale_time_es_activo) {
+  warning(
+    sprintf(
+      paste(
+        "No fue posible activar un locale en espanol para LC_TIME; LC_TIME actual: %s.",
+        "Instala/genera es_CO.UTF-8 o es_ES.UTF-8 en el servidor de produccion.",
+        "Para fechas visibles en la UI usa format_fecha_es(), que no depende del locale del sistema."
+      ),
+      Sys.getlocale("LC_TIME")
+    ),
+    call. = FALSE
+  )
 }
 rm(.set_spanish_locale)
 

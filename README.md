@@ -89,7 +89,7 @@ Adicionalmente, se configuran valores globales del entorno al inicio de `global.
 
 - `TZ` (zona horaria), definido por `Sys.setenv(TZ = "America/Bogota")`.
 - `LANG` (idioma de mensajes del sistema), definido por `Sys.setenv(LANG = "es_CO.UTF-8")`.
-- `LC_TIME`, `LC_MONETARY` y `LC_MESSAGES` (localización regional) mediante `Sys.setlocale(...)`.
+- `LC_TIME`, `LC_MONETARY` y `LC_MESSAGES` (localización regional) mediante `Sys.setlocale(...)`; en producción el servidor debe tener instalado/generado un locale en español (`es_CO.UTF-8` o `es_ES.UTF-8`). Si el sistema no lo permite, usa `format_fecha_es()` para fechas visibles en la UI, porque no depende del locale del servidor.
 
 ## Ejecución local
 
