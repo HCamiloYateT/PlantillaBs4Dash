@@ -1,0 +1,33 @@
+# Archivos de sesion y proyecto de R/RStudio
+.Rhistory
+.Rapp.history
+.RData
+.RDataTmp
+.Ruserdata
+.Rproj.user/
+*.Rproj
+
+# Archivos locales con credenciales o configuracion sensible
+.Renviron
+.env
+.env.*
+!.env.example
+
+# Dependencias y artefactos locales de renv
+renv/library/
+renv/staging/
+renv/cellar/
+renv/python/
+
+# Artefactos generados por paquetes y comprobaciones
+*.tar.gz
+*.Rcheck/
+revdep/
+docs/
+
+# Registros y archivos temporales
+*.log
+*.tmp
+*~
+.DS_Store
+Thumbs.db
