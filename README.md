@@ -95,8 +95,66 @@ Adicionalmente, se configuran valores globales del entorno al inicio de `global.
 Desde la raíz del repositorio, en una sesión de R:
 
 ```r
+renv::restore()
 shiny::runApp("APP")
 ```
+
+El archivo `.Rprofile` activa `renv` automáticamente cuando el proyecto ya
+contiene `renv/activate.R`. En un clon que todavía no lo contenga, inicializa el
+entorno una sola vez con `renv::init()` y confirma `renv.lock` y los archivos de
+infraestructura de `renv` (pero no `renv/library/`).
+
+## Calidad de código
+
+La configuración de `lintr` admite líneas de hasta 120 caracteres y excluye el
+archivo de activación generado por `renv`. Para revisar el código de la app:
+
+```r
+install.packages("lintr") # solo si no forma parte aún del entorno
+lintr::lint_dir("APP")
+```
+
+Consulta [CONTRIBUTING.md](CONTRIBUTING.md) antes de proponer cambios.
+
+## Solución de problemas
+
+### No se puede activar un locale en español
+
+La app intenta usar `es_CO.UTF-8` y luego variantes de Colombia y España. En
+Linux comprueba los locales disponibles con `locale -a`. Si faltan, instala el
+paquete de locales de la distribución y genera `es_CO.UTF-8` o `es_ES.UTF-8`;
+por ejemplo, en Debian/Ubuntu un administrador puede ejecutar
+`sudo locale-gen es_CO.UTF-8`. Reinicia R después de cambiar la configuración.
+
+En Windows usa un locale de la familia `Spanish_Colombia.1252` o
+`Spanish_Spain.1252`. Si el servidor no permite instalar locales, conserva el
+locale disponible y usa `format_fecha_es()` para el texto visible: esta función
+no depende de la configuración regional del sistema. No cambies `LC_NUMERIC`,
+porque R y varios paquetes esperan el punto como separador decimal.
+
+### No se pueden instalar los paquetes privados `racafe*`
+
+Los paquetes `racafeCore`, `racafeBD`, `racafeDrive`, `racafeGraph`,
+`racafeShiny` y `racafeForecast` requieren acceso al registro o repositorio
+privado de la organización. Comprueba primero que tu cuenta tenga permisos y
+que Git pueda acceder al origen privado desde la misma máquina.
+
+- Guarda tokens en el gestor de credenciales del sistema o en `~/.Renviron`,
+  nunca en el repositorio. `.Renviron` está ignorado deliberadamente.
+- Si se usa GitHub, configura `GITHUB_PAT` con un token de alcance mínimo y
+  reinicia R. Para un repositorio Git privado también puedes usar una llave SSH
+  registrada y probarla antes de restaurar dependencias.
+- Configura el repositorio corporativo mediante `options(repos = ...)` en tu
+  perfil de usuario si los paquetes se distribuyen desde un repositorio R
+  interno. No reemplaces el repositorio corporativo por CRAN si las dependencias
+  privadas solo están disponibles allí.
+- Tras autenticarte, ejecuta `renv::restore()` de nuevo. Si el lockfile apunta a
+  una revisión que ya no existe, solicita al mantenedor que restaure esa versión
+  o actualice y confirme `renv.lock`; no sustituyas silenciosamente la versión.
+
+Para diagnosticar sin divulgar secretos, incluye en el reporte la salida de
+`R.version.string`, `renv::diagnostics()` y el nombre del paquete que falla,
+eliminando tokens, URLs con credenciales y nombres de usuario.
 
 ## Estado
 
