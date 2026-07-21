@@ -6,9 +6,11 @@ Plantilla base para construir aplicaciones **Shiny** con **bs4Dash** y una estru
 
 Este repositorio contiene una app organizada en capas:
 
-- **Inicialización global** (`APP/global.R`): configuración de entorno, locales, opciones globales, carga de librerías y carga dinámica de módulos.
+- **Inicialización global** (`APP/global.R`): configuración de entorno, locales, opciones globales, carga de librerías y preparación para la carga dinámica de módulos.
 - **Interfaz de usuario** (`APP/ui.R` + `APP/misc/ui/`): definición del layout principal (header, sidebar, body, footer, controlbar y preloader).
-- **Lógica de servidor** (`APP/server.R` + `APP/misc/modules/`): reactividad y módulos funcionales de ejemplo.
+- **Lógica de servidor** (`APP/server.R`): reactividad básica de la aplicación.
+
+La versión actual de la plantilla **todavía no incluye módulos de ejemplo** ni el directorio `APP/misc/modules/`. Cuando el proyecto incorpore módulos, ese directorio puede crearse como punto de extensión para que `load_modules()` los cargue desde `APP/global.R`.
 
 La plantilla está pensada como punto de partida para dashboards corporativos con navegación por pestañas, tablas y componentes reutilizables.
 
@@ -23,9 +25,6 @@ APP/
     ├── functions.R
     ├── parametros.R
     ├── values.R
-    ├── modules/
-    │   ├── ModuloPrueba.R
-    │   └── ModuloTablaPais.R
     └── ui/
         ├── header.R
         ├── sidebar.R
@@ -38,7 +37,7 @@ APP/
 ## Requisitos
 
 - R (versión reciente recomendada).
-- Paquetes usados por la app (se cargan en `global.R`), incluyendo `shiny`, `bs4Dash`, `tidyverse`, `gt`, `plotly`, entre otros.
+- Paquetes usados por la app (se cargan en `global.R`), incluyendo `shiny`, `bs4Dash`, `tidyverse`, `shinyWidgets`, `waiter`, entre otros.
 - Dependencias internas de la organización: familia de paquetes `racafe*`.
 
 ## Descarga selectiva de la subcarpeta `APP`
@@ -101,7 +100,7 @@ shiny::runApp("APP")
 
 ## Estado
 
-Repositorio en estado de **plantilla/prototipo**, con componentes base para extender módulos, fuentes de datos y visualizaciones.
+Repositorio en estado de **plantilla/prototipo**, con componentes base para extender fuentes de datos y visualizaciones. La infraestructura de carga está preparada para incorporar módulos, pero esta versión aún no trae módulos funcionales de ejemplo.
 
 ## Instrucciones para subir un proyecto a GitHub
 
