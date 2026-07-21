@@ -10,7 +10,7 @@ function(input, output, session) {
   # Outputs ----
   ## Header ----
   output$user <- renderUI({
-    FormatearTexto(paste(usuario()) %>% HTML, negrita = T, tamano_pct = 0.75, alineacion = "center", color = "#999")
+    FormatearTexto(paste(usuario()) %>% HTML, negrita = TRUE, tamano_pct = 0.75, alineacion = "center", color = "#999")
   })
   }
 
