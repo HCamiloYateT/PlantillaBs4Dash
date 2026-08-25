@@ -12,5 +12,10 @@ function(input, output, session) {
   output$user <- renderUI({
     FormatearTexto(paste(usuario()) %>% HTML, negrita = TRUE, tamano_pct = 0.75, alineacion = "center", color = "#999")
   })
+  output$group <- renderUI({
+    div(style = "text-align:center;",
+        tags$span(class = "badge badge-secondary", style = "font-size:75%;", grupo())
+        )
+  })
   }
 
