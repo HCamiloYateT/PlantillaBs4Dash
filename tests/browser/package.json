@@ -1,0 +1,6 @@
+{
+  "name": "plantilla-bs4dash-browser-tests",
+  "private": true,
+  "scripts": {"test": "node test-templates.cjs"},
+  "devDependencies": {"playwright": "1.62.1"}
+}
