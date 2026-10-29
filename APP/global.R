@@ -56,7 +56,7 @@ format_fecha_es <- function(fecha = Sys.Date(), abreviado = TRUE) {
 }
 locale_time_es_activo <- grepl("^(es|spanish)", Sys.getlocale("LC_TIME"), ignore.case = TRUE)
 if (!locale_time_es_activo) {
-  warning(
+  message(
     sprintf(
       paste(
         "No fue posible activar un locale en espanol para LC_TIME; LC_TIME actual: %s.",
@@ -64,8 +64,7 @@ if (!locale_time_es_activo) {
         "Para fechas visibles en la UI usa format_fecha_es(), que no depende del locale del sistema."
       ),
       Sys.getlocale("LC_TIME")
-    ),
-    call. = FALSE
+    )
   )
 }
 rm(.set_spanish_locale)
@@ -107,21 +106,12 @@ options(
   shiny.error            = if (debug) NULL else function() invisible(NULL)
 )
 
-# Librerias ----
-library("racafeCore")
-library("racafeBD")
-library("racafeDrive")
-library("racafeGraph")
-library("racafeShiny")
-library("racafeForecast")
-racafeCore::Loadpkg(c("shiny", "bs4Dash", "shinyBS", "shinyjs",
-                      "shinyWidgets", "tidyverse", "scales", "rlang",
-                      "waiter", "glue", "lubridate", "stringr", "purrr"))
-
-# Impresiones ----
-tit_app <- "Análisis de Ofertas"
-# valores: prototipo, pruebas, staging, produccion, demo, mantenimiento, ninguno
-badge_estado <- "staging"
+# Dependencias de la plantilla ----
+.required <- c("shiny", "bs4Dash", "racafeCore", "racafeShiny", "racafeForms", "stringr", "later")
+.missing <- .required[!vapply(.required, requireNamespace, logical(1), quietly = TRUE)]
+if (length(.missing)) stop("Instale las dependencias: ", paste(.missing, collapse = ", "), call. = FALSE)
+if (utils::packageVersion("racafeShiny") < "1.2.0") stop("Actualice racafeShiny a >= 1.2.0.", call. = FALSE)
+if (utils::packageVersion("racafeForms") < "0.5.0") stop("Actualice racafeForms a >= 0.5.0.", call. = FALSE)
 
 # Datos ----
 # Carga datos precargados desde RData
@@ -140,5 +130,11 @@ if (file.exists("data/data.RData")) {
   if (verbose) message("[INFO] data/data.RData no encontrado. App inicia sin datos precargados.")
 }
 
-# Sources ----
-load_modules(verbose = verbose)
+
+# Recursos corporativos locales, cargados una sola vez ----
+.assets <- racafeForms::racafeSharedAssets(path = file.path("www", "compartido"), version = "1.1.0")
+.logo_url <- paste0(attr(.assets, "image_url"), "/logo2.png")
+
+# Extensiones y módulos; falla de forma explícita si un script no carga ----
+.modules <- racafeCore::load_modules(verbose = verbose, progress = FALSE)
+if (length(.modules$fallidos)) stop("No se pudieron cargar: ", paste(.modules$fallidos, collapse = ", "))

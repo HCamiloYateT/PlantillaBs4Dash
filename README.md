@@ -1,205 +1,210 @@
 # PlantillaBs4Dash
 
-Plantilla base para construir aplicaciones **Shiny** con **bs4Dash** y una estructura modular orientada a proyectos de analítica.
+Dos aplicaciones bs4Dash independientes con identidad visual Racafé y datos locales de demostración.
 
-## Descripción
+| Plantilla | Carpeta | Uso |
+| --- | --- | --- |
+| Dashboard | `APP` | Sidebar, navegación Importaciones/Histórico y controlbar |
+| Single Page | `APP_SINGLE` | Página única, sin sidebar, botón lateral ni espacio reservado |
 
-Este repositorio contiene una app organizada en capas:
+Ambas incluyen navbar con usuario/grupos, actualización funcional, badge de entorno,
+footer, logo local, preloaders/loaders de racafeShiny y avisos de racafeForms.
+El formulario hace cálculos y guardados solo en memoria; no usa APIs, bases de datos ni correos.
 
-- **Inicialización global** (`APP/global.R`): configuración de entorno, locales, opciones globales, carga de librerías y preparación para la carga dinámica de módulos.
-- **Interfaz de usuario** (`APP/ui.R` + `APP/misc/ui/`): definición del layout principal (header, sidebar, body, footer, controlbar y preloader).
-- **Lógica de servidor** (`APP/server.R`): reactividad básica de la aplicación.
+![Dashboard](docs/dashboard-desktop.png)
+![Single Page](docs/single-desktop.png)
 
-La versión actual de la plantilla **todavía no incluye módulos de ejemplo** ni el directorio `APP/misc/modules/`. Cuando el proyecto incorpore módulos, ese directorio puede crearse como punto de extensión para que `load_modules()` los cargue desde `APP/global.R`.
+Capturas móviles: [Dashboard](docs/dashboard-mobile.png) · [Single Page](docs/single-mobile.png).
 
-La plantilla está pensada como punto de partida para dashboards corporativos con navegación por pestañas, tablas y componentes reutilizables.
+## Dependencias e instalación
 
-## Estructura principal
+R >= 4.1.0, Git para las descargas, `shiny`, `bs4Dash`, `stringr`, `later`, y los paquetes
+corporativos `racafeCore`, `racafeShiny >= 1.2.0` y `racafeForms >= 0.5.0`.
+Las dependencias transitivas, incluido waiter, se instalan mediante los paquetes corporativos.
+Ya no se cargan racafeBD, racafeDrive, racafeForecast o tidyverse completo: estas demos no los utilizan.
+
+```r
+if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes")
+install.packages(c("shiny", "bs4Dash", "stringr", "later"))
+repo <- "HCamiloYateT/Libreria-Racafe"
+remotes::install_github(repo, subdir = "racafeCore", dependencies = NA, upgrade = "never")
+remotes::install_github(repo, subdir = "racafeGraph", dependencies = NA, upgrade = "never")
+remotes::install_github(repo, subdir = "racafeShiny", dependencies = NA, upgrade = "never")
+remotes::install_github(repo, subdir = "racafeForms", dependencies = NA, upgrade = "never")
+```
+
+Si la versión 1.2.0 todavía está pendiente de integrar en main, instale racafeShiny con
+`ref = "codex/shiny-loader-operations"`. Reinicie R y la app después de actualizar.
+Autentique el acceso a repositorios privados fuera del código; no guarde tokens en el proyecto.
+
+La copia local de recursos públicos de Compartido 1.1.0 está dentro de cada app, en
+`www/compartido`, para que cada descarga sea independiente. Se carga mediante
+`racafeForms::racafeSharedAssets()` una sola vez, sin descargar CSS, imágenes ni scripts al arrancar.
+El logo de los loaders procede del paquete racafeShiny. No se reimplementan esos componentes.
+Para actualizar Compartido, sustituya la copia completa de recursos de cada plantilla desde
+una misma revisión y conserve su manifiesto `ASSETS_VERSION`; no mezcle versiones.
+
+## Descargar una plantilla
+
+### Función reutilizable
+
+Desde un clon de este repositorio:
+
+```r
+source("utils/descargar_plantilla.R")
+DescargarPlantillaBs4Dash("dashboard", destino = getwd()) # crea APP
+DescargarPlantillaBs4Dash("single", destino = getwd())    # crea APP_SINGLE
+```
+
+Sin clonar el repositorio primero:
+
+```r
+archivo <- tempfile(fileext = ".R")
+download.file(paste0("https://raw.githubusercontent.com/HCamiloYateT/PlantillaBs4Dash/",
+                     "main/utils/descargar_plantilla.R"), archivo, mode = "wb")
+source(archivo)
+unlink(archivo)
+DescargarPlantillaBs4Dash(tipo = "single", destino = getwd())
+```
+
+`destino` debe ser un directorio existente. La función comprueba Git, rechaza carpetas
+preexistentes, valida la descarga y publica una copia completa desde una carpeta temporal.
+No borra proyectos ni los sobrescribe. Limpia sus temporales y devuelve la ruta final.
+`repo` y `ref` permiten elegir un origen o revisión; durante la revisión de este cambio use
+`ref = "codex/two-corporate-templates"`.
+
+### Sparse checkout manual: Dashboard
+
+En una terminal, elija un nombre temporal que no exista:
+
+```sh
+git clone --depth=1 --filter=blob:none --sparse --no-checkout --single-branch \
+  https://github.com/HCamiloYateT/PlantillaBs4Dash.git plantilla-dashboard-tmp
+git -C plantilla-dashboard-tmp sparse-checkout set --no-cone /APP/
+git -C plantilla-dashboard-tmp checkout
+```
+
+La aplicación está en `plantilla-dashboard-tmp/APP`. Puede ejecutarla ahí o copiar
+esa carpeta a un destino nuevo. No copie encima de un proyecto existente.
+
+### Sparse checkout manual: Single Page
+
+```sh
+git clone --depth=1 --filter=blob:none --sparse --no-checkout --single-branch \
+  https://github.com/HCamiloYateT/PlantillaBs4Dash.git plantilla-single-tmp
+git -C plantilla-single-tmp sparse-checkout set --no-cone /APP_SINGLE/
+git -C plantilla-single-tmp checkout
+```
+
+La aplicación está en `plantilla-single-tmp/APP_SINGLE`. Antes del merge, añada
+`--branch codex/two-corporate-templates` a `git clone` en cualquiera de los ejemplos.
+El filtro solicita solo los blobs seleccionados; un servidor Git que no admita clones
+parciales puede transferir más objetos. La copia final contiene únicamente la app elegida.
+
+## Ejecutar cada aplicación
+
+Desde la raíz del repositorio o de la descarga que contiene la carpeta correspondiente:
+
+```r
+shiny::runApp("APP")
+# En otra sesión, o después de detener la anterior:
+shiny::runApp("APP_SINGLE")
+```
+
+Cada app contiene su propio global, UI, servidor, módulos y recursos; ninguna referencia
+a la otra carpeta. Si abrió directamente la carpeta de una app, ejecute `shiny::runApp(".")`.
+
+## Estructura
 
 ```text
-APP/
-├── global.R
-├── ui.R
-├── server.R
-└── misc/
-    ├── functions.R
-    ├── parametros.R
-    ├── values.R
-    └── ui/
-        ├── header.R
-        ├── sidebar.R
-        ├── body.R
-        ├── footer.R
-        ├── controlbar.R
-        └── preloader.R
+APP/                         APP_SINGLE/
+  global.R                     global.R
+  ui.R                         ui.R
+  server.R                     server.R
+  misc/                        misc/
+    functions.R                  functions.R
+    parametros.R                 parametros.R
+    values.R                     values.R
+    modules/demo.R               modules/demo.R
+    modules/.gitkeep              modules/.gitkeep
+    ui/                          ui/
+      header.R                     header.R
+      body.R                       body.R
+      footer.R                     footer.R
+      preloader.R                  preloader.R
+      sidebar.R
+      controlbar.R
+  www/                         www/
+    template.css                 template.css
+    compartido/                  compartido/
+utils/descargar_plantilla.R
 ```
 
-## Requisitos
+## Personalización y módulos
 
-- R (versión reciente recomendada).
-- Paquetes usados por la app (se cargan en `global.R`), incluyendo `shiny`, `bs4Dash`, `tidyverse`, `shinyWidgets`, `waiter`, entre otros.
-- Dependencias internas de la organización: familia de paquetes `racafe*`.
+- `misc/parametros.R`: título (`tit_app`) y badge (`badge_estado`). Se admiten prototipo,
+  pruebas, staging, produccion, demo, mantenimiento y ninguno.
+- `misc/ui/header.R` y `footer.R`: identidad y disposición. `.logo_url` apunta al logo
+  publicado por racafeSharedAssets; puede sustituirlo por una imagen local en `www/`.
+- `misc/ui/body.R`: contenido de la página y registro declarativo de loaders.
+- `misc/modules/`: funciones `moduleUI`/`moduleServer`; use `NS(id)` y IDs locales.
+  `racafeCore::load_modules()` conserva la carga modular y detecta scripts fallidos.
+  El módulo `demo.R` muestra la estructura y las llamadas a componentes públicos.
+- `APP/misc/ui/sidebar.R`: añada entradas con un `tabName` igual al de su `bs4TabItem`.
+  `APP_SINGLE` no requiere sidebar ni pestañas.
 
-## Descarga selectiva de la subcarpeta `APP`
+En `server.R`, invoque el servidor del módulo una sola vez por sesión y añada su UI en
+el body. La carga opcional de `data/data.RData` se conserva. Mantenga los datos de cada sesión en reactivos; no guarde datos de usuarios en global.
 
-Si solo necesitas la app y no todo el repositorio, puedes usar **sparse checkout** desde R para descargar únicamente `APP`:
+## Loaders y notificaciones
 
-```r
-# Descarga selectiva de subcarpeta desde GitHub via sparse checkout
-repo_url  <- "https://github.com/HCamiloYateT/PlantillaBs4Dash"
-subcarpeta <- "APP"
-destino    <- file.path(getwd(), subcarpeta)
+El preloader inicial se crea en `ui.R` con `racafeShiny::racafePreloader("inicio")`.
+En el body se instala una sola vez `racafeLoaderUI(startup = FALSE, busy = TRUE, ...)`.
+No se duplica `use_waiter()`. Los aliases de `misc/ui/preloader.R` solo llaman al paquete.
 
-# Clonar solo la subcarpeta usando sparse checkout (sin historial completo)
-tmp <- tempfile()
-system2("git", c(
-  "clone",
-  "--depth=1",
-  "--filter=blob:none",
-  "--sparse",
-  repo_url,
-  tmp
-))
-system2("git", c("-C", tmp, "sparse-checkout", "set", subcarpeta))
+Se registran botones con acción real: `BTN_Actualizar`, consulta, guardado y error del
+módulo. Use nombres de operaciones como `consultar`, `guardar`, `generar` o `enviar` para
+nuevos triggers. Con módulos, use el ID completo o pase `ns`; evite duplicar namespaces.
 
-# Copiar la carpeta APP al directorio del proyecto
-file.copy(
-  from      = file.path(tmp, subcarpeta),
-  to        = getwd(),
-  recursive = TRUE,
-  overwrite = TRUE
-)
+El guardado demuestra un objeto `racafeLoader(..., type = "guardar", id = "panel")`,
+con `show()`, `hide()` y limpieza mediante `on.exit()`/`finally`. Un temporizador local de
+0.8 segundos permite observarlo antes de terminar o fallar. No es procesamiento paralelo.
+Los procesos síncronos que bloquean R no ofrecen progreso intermedio fiable; la animación
+no implica porcentajes reales. Para tareas asíncronas cierre al resolver y al rechazar.
+Los resultados usan `racafeForms::racafeNotify()` y permanecen visibles al cerrar el loader.
 
-# Limpiar temporal
-unlink(tmp, recursive = TRUE)
-message("Listo: carpeta APP disponible en ", destino)
+## Usuario y grupos
+
+`session$user` se presenta en `output$user`. `session$groups` (plural) se limpia,
+convierte a mayúsculas, elimina vacíos/NA y une grupos únicos con ` · ` en `output$group`.
+Sin identidad/grupos se muestran HCYATE y ANALÍTICA. Es información visual, no autorización:
+los permisos de operaciones deben implementarse aparte en el servidor de cada proyecto.
+
+## Convención numérica y fechas
+
+Ambas apps usan `OutDec = "."`, `scipen = 999`, miles `,` y decimales `.`.
+Los inputs y cálculos permanecen numéricos; el formato se aplica solo en outputs mediante
+racafeShiny o `format(..., big.mark = ",", decimal.mark = ".")`. La demo verifica
+`1,234`, `1,234.56`, `1,234,567.89`, `-1,234,567.89` y `0.125`.
+No se modifica `LC_NUMERIC`. Los locales de fechas/mensajes siguen en español; si el sistema
+no dispone de ellos, `format_fecha_es()` muestra fechas en español sin depender del locale.
+
+## Validación y contribuciones
+
+```sh
+Rscript tests/test-templates.R
 ```
 
-## Variables que debes definir en `APP/global.R`
+Inicie ambas apps y ejecute el test de navegador con Playwright instalado según
+`tests/browser/package.json`:
 
-Antes de extender la plantilla, valida que estas variables estén declaradas en `global.R`:
-
-- `verbose`: activa/desactiva mensajes informativos de arranque y carga de módulos.
-- `debug`: activa opciones de depuración (por ejemplo, `shiny.fullstacktrace`).
-- `tit_app`: título principal mostrado por la aplicación.
-- `badge_estado`: estado visible de la app (`prototipo`, `pruebas`, `staging`, `produccion`, `demo`, `mantenimiento`, `ninguno`).
-
-Adicionalmente, se configuran valores globales del entorno al inicio de `global.R` que debes revisar según tu ambiente:
-
-- `TZ` (zona horaria), definido por `Sys.setenv(TZ = "America/Bogota")`.
-- `LANG` (idioma de mensajes del sistema), definido por `Sys.setenv(LANG = "es_CO.UTF-8")`.
-- `LC_TIME`, `LC_MONETARY` y `LC_MESSAGES` (localización regional) mediante `Sys.setlocale(...)`; en producción el servidor debe tener instalado/generado un locale en español (`es_CO.UTF-8` o `es_ES.UTF-8`). Si el sistema no lo permite, usa `format_fecha_es()` para fechas visibles en la UI, porque no depende del locale del servidor.
-
-## Ejecución local
-
-Desde la raíz del repositorio, en una sesión de R:
-
-```r
-renv::restore()
-shiny::runApp("APP")
+```sh
+DASHBOARD_URL=http://127.0.0.1:3922 SINGLE_URL=http://127.0.0.1:3923 \
+  node tests/browser/test-templates.cjs
 ```
 
-El archivo `.Rprofile` activa `renv` automáticamente cuando el proyecto ya
-contiene `renv/activate.R`. En un clon que todavía no lo contenga, inicializa el
-entorno una sola vez con `renv::init()` y confirma `renv.lock` y los archivos de
-infraestructura de `renv` (pero no `renv/library/`).
-
-## Calidad de código
-
-La configuración de `lintr` admite líneas de hasta 120 caracteres y excluye el
-archivo de activación generado por `renv`. Para revisar el código de la app:
-
-```r
-install.packages("lintr") # solo si no forma parte aún del entorno
-lintr::lint_dir("APP")
-```
-
-Consulta [CONTRIBUTING.md](CONTRIBUTING.md) antes de proponer cambios.
-
-## Solución de problemas
-
-### No se puede activar un locale en español
-
-La app intenta usar `es_CO.UTF-8` y luego variantes de Colombia y España. En
-Linux comprueba los locales disponibles con `locale -a`. Si faltan, instala el
-paquete de locales de la distribución y genera `es_CO.UTF-8` o `es_ES.UTF-8`;
-por ejemplo, en Debian/Ubuntu un administrador puede ejecutar
-`sudo locale-gen es_CO.UTF-8`. Reinicia R después de cambiar la configuración.
-
-En Windows usa un locale de la familia `Spanish_Colombia.1252` o
-`Spanish_Spain.1252`. Si el servidor no permite instalar locales, conserva el
-locale disponible y usa `format_fecha_es()` para el texto visible: esta función
-no depende de la configuración regional del sistema. No cambies `LC_NUMERIC`,
-porque R y varios paquetes esperan el punto como separador decimal.
-
-### No se pueden instalar los paquetes privados `racafe*`
-
-Los paquetes `racafeCore`, `racafeBD`, `racafeDrive`, `racafeGraph`,
-`racafeShiny` y `racafeForecast` requieren acceso al registro o repositorio
-privado de la organización. Comprueba primero que tu cuenta tenga permisos y
-que Git pueda acceder al origen privado desde la misma máquina.
-
-- Guarda tokens en el gestor de credenciales del sistema o en `~/.Renviron`,
-  nunca en el repositorio. `.Renviron` está ignorado deliberadamente.
-- Si se usa GitHub, configura `GITHUB_PAT` con un token de alcance mínimo y
-  reinicia R. Para un repositorio Git privado también puedes usar una llave SSH
-  registrada y probarla antes de restaurar dependencias.
-- Configura el repositorio corporativo mediante `options(repos = ...)` en tu
-  perfil de usuario si los paquetes se distribuyen desde un repositorio R
-  interno. No reemplaces el repositorio corporativo por CRAN si las dependencias
-  privadas solo están disponibles allí.
-- Tras autenticarte, ejecuta `renv::restore()` de nuevo. Si el lockfile apunta a
-  una revisión que ya no existe, solicita al mantenedor que restaure esa versión
-  o actualice y confirme `renv.lock`; no sustituyas silenciosamente la versión.
-
-Para diagnosticar sin divulgar secretos, incluye en el reporte la salida de
-`R.version.string`, `renv::diagnostics()` y el nombre del paquete que falla,
-eliminando tokens, URLs con credenciales y nombres de usuario.
-
-## Estado
-
-Repositorio en estado de **plantilla/prototipo**, con componentes base para extender fuentes de datos y visualizaciones. La infraestructura de carga está preparada para incorporar módulos, pero esta versión aún no trae módulos funcionales de ejemplo.
-
-## Instrucciones para subir un proyecto a GitHub
-
-El siguiente script de R inicializa Git en la raíz del proyecto, configura el remoto `origin`, descarga un `.gitignore` compartido, crea el primer commit y publica la rama `main` en GitHub.
-
-> Antes de ejecutarlo, ajusta `repo_github` con la URL SSH del repositorio destino y confirma que tu llave SSH (`~/.ssh/id_ed25519`) tenga acceso al repositorio.
-
-```r
-ruta_proyecto <- here::here()
-repo_github   <- "git@github.com:HCamiloYateT/OCR.git"
-gitignore_url <- "https://raw.githubusercontent.com/HCamiloYateT/Compartido/refs/heads/main/git/.gitignore"
-
-setwd(ruta_proyecto)
-
-top_git <- tryCatch(system2("git", c("rev-parse","--show-toplevel"), stdout = TRUE, stderr = FALSE), error = function(e) NULL)
-
-if(!is.null(top_git) && normalizePath(top_git) != normalizePath(getwd())){
-  unlink(file.path(top_git, ".git"), recursive = TRUE, force = TRUE)
-  message("Git incorrecto eliminado de: ", top_git)
-}
-
-system2("git", "init")
-
-Sys.chmod("~/.ssh", "700")
-if(file.exists("~/.ssh/id_ed25519")) Sys.chmod("~/.ssh/id_ed25519", "600")
-
-remotos <- tryCatch(system2("git", "remote", stdout = TRUE), error = function(e) character(0))
-
-if("origin" %in% remotos){
-  system2("git", c("remote","set-url","origin", repo_github))
-} else {
-  system2("git", c("remote","add","origin", repo_github))
-}
-
-download.file(gitignore_url, ".gitignore", quiet = TRUE)
-
-system2("git", "status")
-system2("git", c("add","."))
-system2("git", c("commit","-m","Primer commit"))
-system2("git", c("branch","-M","main"))
-system2("git", c("push","-u","origin","main"))
-
-message("Proyecto sincronizado con GitHub")
-```
+El test admite `CHROMIUM_PATH`, `NODE_PATH` y `CI=1`. Genera las capturas de `docs/`.
+Consulte [CONTRIBUTING.md](CONTRIBUTING.md) y el [informe de validación](docs/validacion.md).
+`.Rprofile` conserva la activación opcional de renv; no hay un lockfile previo que restaurar.
+Si utiliza renv en su proyecto derivado, inicialícelo y genere su propio lockfile con las
+versiones corporativas validadas, sin confirmar bibliotecas locales ni credenciales.
