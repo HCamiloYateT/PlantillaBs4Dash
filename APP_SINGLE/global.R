@@ -132,7 +132,8 @@ if (file.exists("data/data.RData")) {
 
 
 # Recursos corporativos locales, cargados una sola vez ----
-.assets <- racafeForms::racafeSharedAssets(path = file.path("www", "compartido"), version = "1.1.0")
+.assets <- racafeForms::racafeSharedAssets(path = file.path("www", "compartido"), version = "1.1.0",
+                                           prefix = "racafe-single")
 .logo_url <- paste0(attr(.assets, "image_url"), "/logo2.png")
 
 # Extensiones y módulos; falla de forma explícita si un script no carga ----

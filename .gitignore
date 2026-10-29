@@ -23,7 +23,6 @@ renv/python/
 *.tar.gz
 *.Rcheck/
 revdep/
-docs/
 
 # Registros y archivos temporales
 *.log
