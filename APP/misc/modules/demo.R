@@ -7,7 +7,7 @@
         racafeForms::racafeInfoItem("Fuente", "Datos simulados en memoria"),
         racafeForms::racafeInfoItem("Formato", "1,234.56"))),
     racafeForms::racafePanel("Formulario de demostración",
-      racafeForms::racafeForm(id = "form", ns = ns, unstyled = TRUE,
+      racafeForms::racafeForm(id = "form", ns = ns, variant = "plain",
         racafeForms::racafeFormRow(
           racafeForms::racafeInputText("nombre", "Nombre", value = "Solicitud de prueba",
                                        required = TRUE, ns = ns),

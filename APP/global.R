@@ -114,7 +114,7 @@ if (utils::packageVersion("racafeShiny") < "1.2.0") stop("Actualice racafeShiny 
 if (utils::packageVersion("racafeForms") < "0.5.0") stop("Actualice racafeForms a >= 0.5.0.", call. = FALSE)
 
 # Comprobación de capacidades: no requiere publicar una versión para probar este borrador.
-.form_api <- c("racafeFormValidation", "racafeDownloadHandler")
+.form_api <- c("racafeFormValidation", "racafeDownloadHandler", "racafeFormsGallery", "racafeUpdateEnabled")
 if (!all(.form_api %in% getNamespaceExports("racafeForms"))) {
   stop("Instale la copia actualizada de racafeForms desde Libreria-Racafe antes de ejecutar esta plantilla.")
 }
