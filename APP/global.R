@@ -113,6 +113,12 @@ if (length(.missing)) stop("Instale las dependencias: ", paste(.missing, collaps
 if (utils::packageVersion("racafeShiny") < "1.2.0") stop("Actualice racafeShiny a >= 1.2.0.", call. = FALSE)
 if (utils::packageVersion("racafeForms") < "0.5.0") stop("Actualice racafeForms a >= 0.5.0.", call. = FALSE)
 
+# Comprobación de capacidades: no requiere publicar una versión para probar este borrador.
+.form_api <- c("racafeFormValidation", "racafeDownloadHandler")
+if (!all(.form_api %in% getNamespaceExports("racafeForms"))) {
+  stop("Instale la copia actualizada de racafeForms desde Libreria-Racafe antes de ejecutar esta plantilla.")
+}
+
 # Datos ----
 # Carga datos precargados desde RData
 if (file.exists("data/data.RData")) {

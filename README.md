@@ -208,3 +208,22 @@ Consulte [CONTRIBUTING.md](CONTRIBUTING.md) y el [informe de validación](docs/v
 `.Rprofile` conserva la activación opcional de renv; no hay un lockfile previo que restaurar.
 Si utiliza renv en su proyecto derivado, inicialícelo y genere su propio lockfile con las
 versiones corporativas validadas, sin confirmar bibliotecas locales ni credenciales.
+
+## Formularios estandarizados (borrador sin publicar)
+
+Los módulos de ambas plantillas declaran `required = TRUE` en la UI y crean un único
+`racafeFormValidation()` por sesión/formulario. Consultar y Guardar comprueban su método
+`validate()` antes de ejecutar lógica; los errores se limpian automáticamente al corregir.
+El footer usa `racafeFormFooter`, sin añadir CSS de validación a la aplicación.
+`racafeButtonDownload(validate = TRUE)` y `racafeDownloadHandler()` validan antes de iniciar
+el CSV y de generar su contenido. No hay enlaces ocultos en el módulo.
+
+Estos métodos todavía pertenecen a cambios en revisión: instale la copia local modificada
+con `R CMD INSTALL racafeForms` desde Libreria-Racafe y reinicie la aplicación. La versión
+no se incrementó ni se publicó. La plantilla comprueba capacidades y explica qué instalar
+si encuentra una copia anterior que todavía no exporta esas funciones.
+
+La demo completa de fecha-hora, condiciones, grupos anidados, campos dinámicos y controlbar
+se distribuye con racafeForms, en `inst/examples/standardized-forms.R`. No se modifica
+CRM Nacional. Los recursos de Compartido 1.1.0 siguen siendo compatibles y no se duplican
+las nuevas reglas CSS en las aplicaciones.
