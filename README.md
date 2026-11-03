@@ -227,3 +227,19 @@ La demo completa de fecha-hora, condiciones, grupos anidados, campos dinámicos 
 se distribuye con racafeForms, en `inst/examples/standardized-forms.R`. No se modifica
 CRM Nacional. Los recursos de Compartido 1.1.0 siguen siendo compatibles y no se duplican
 las nuevas reglas CSS en las aplicaciones.
+
+## Galería interactiva de racafeForms
+
+Instale la revisión de Libreria-Racafe que incorpora la galería y reinicie R. En una sesión
+separada de la aplicación:
+
+```r
+library(racafeForms)
+racafeFormsGallery()
+```
+
+La galería incluye los recursos corporativos y no requiere una ruta local a Compartido.
+Permite probar variantes, densidades, selectores, validaciones y ejemplos modulares copiables.
+Ambas plantillas usan `variant = "plain"` dentro del panel para evitar tarjetas duplicadas;
+los argumentos antiguos `bordered` y `unstyled` siguen funcionando si no se especifica `variant`.
+No ejecute otra aplicación Shiny desde el servidor reactivo de una aplicación activa.
